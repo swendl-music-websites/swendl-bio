@@ -5213,46 +5213,46 @@ jQuery(function($) {
 
 function createLines() {
     const linesContainer = document.querySelector('.lines');
-    linesContainer.innerHTML = ''; // Clear any existing lines
+    linesContainer.innerHTML = '';
 
-    let numberOfLines;
-
-    // Adjust the number of lines based on screen size
-    if (window.innerWidth <= 480) {
-        numberOfLines = 4; // Mobile devices
-    } else if (window.innerWidth <= 1024) {
-        numberOfLines = 8; // Tablets
-    } else {
-        numberOfLines = 14; // Desktops and larger screens
-    }
-
+    const numberOfLines = Math.max(4, Math.floor(window.innerWidth / 200));
+    
     for (let i = 0; i < numberOfLines; i++) {
         const line = document.createElement('div');
         line.classList.add('line');
-
-        // Calculate left offset for even distribution across the screen
-        line.style.left = `${(i / (numberOfLines - 1)) * 100}%`;
-
-        // Generate random duration between 5s and 10s for the drop animation
-        const duration = (Math.random() * 5 + 5).toFixed(2) + 's';
-
-        // Generate random delay between 0s and 5s for staggering start time
-        const delay = (Math.random() * 50).toFixed(2) + 's';
-
-        // Set CSS custom properties for duration and delay
+        
+        // Distribute lines with slight randomness
+        const baseOffset = (i / (numberOfLines - 1)) * 100;
+        const randomOffset = (Math.random() - 0.5) * 2; // ±1%
+        line.style.left = `${baseOffset + randomOffset}%`;
+        
+        // Randomize animation timing
+        const duration = (Math.random() * 3 + 6).toFixed(2) + 's';
+        const delay = (Math.random() * 4).toFixed(2) + 's';
+        
         line.style.setProperty('--animation-duration', duration);
         line.style.setProperty('--animation-delay', delay);
-
+        
         linesContainer.appendChild(line);
     }
 }
 
-// Create lines on initial load
-createLines();
+// Create lines on load and window resize
+window.addEventListener('load', createLines);
+window.addEventListener('resize', debounce(createLines, 250));
 
-// Recreate lines on window resize for responsiveness
-window.addEventListener('resize', createLines);
-
+// Debounce function to prevent excessive updates
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
 
 
